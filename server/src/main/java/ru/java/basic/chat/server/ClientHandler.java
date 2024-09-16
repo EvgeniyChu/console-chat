@@ -35,7 +35,15 @@ public class ClientHandler {
                             sendMessage("/exitok");
                             break;
                         }
-                        
+                        if (message.startsWith("/w " + username)){
+                            server.sendMessageToUser(message, username);
+                        }
+                        if (message.startsWith("/w ")) {
+                            String[] parts = message.split(" ", 3);
+                            String user = parts[1].trim();
+                            String message1 = parts[2].trim();
+                            server.sendMessageToUser(message1, user);
+                        }
 
                     } else {
                         server.broadcastMessage(username + " : " + message);
