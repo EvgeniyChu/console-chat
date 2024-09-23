@@ -8,11 +8,13 @@ public class InMemoryAuthenticationProvider implements AuthenticatedProvider {
         private String login;
         private String password;
         private String username;
+        private String role;
 
-        public User(String login, String password, String username) {
+        public User(String login, String password, String username,String role) {
             this.login = login;
             this.password = password;
             this.username = username;
+            this.role = role;
         }
     }
 
@@ -22,10 +24,10 @@ public class InMemoryAuthenticationProvider implements AuthenticatedProvider {
     public InMemoryAuthenticationProvider(Server server) {
         this.server = server;
         this.users = new ArrayList<>();
-        this.users.add(new User("login1", "password1", "username1"));
-        this.users.add(new User("qwe", "qwe", "qwe1"));
-        this.users.add(new User("asd", "asd", "asd1"));
-        this.users.add(new User("zxc", "zxc", "zxc1"));
+        this.users.add(new User("login1", "password1", "username1","user"));
+        this.users.add(new User("qwe", "qwe", "qwe1","user"));
+        this.users.add(new User("asd", "asd", "asd1","user"));
+        this.users.add(new User("zxc", "zxc", "zxc1","user"));
     }
 
     @Override
@@ -79,7 +81,7 @@ public class InMemoryAuthenticationProvider implements AuthenticatedProvider {
     }
 
     @Override
-    public boolean registration(ClientHandler clientHandler, String login, String password, String username) {
+    public boolean registration(ClientHandler clientHandler, String login, String password, String username,String role) {
         if (login.trim().length() < 3 || password.trim().length() < 6
                 || username.trim().length() < 2) {
             clientHandler.sendMessage("Требования логин 3+ символа, пароль 6+ символа," +
@@ -94,8 +96,9 @@ public class InMemoryAuthenticationProvider implements AuthenticatedProvider {
             clientHandler.sendMessage("Указанное имя пользователя уже занято");
             return false;
         }
-        users.add(new User(login, password, username));
+        users.add(new User(login, password, username,role));
         clientHandler.setUsername(username);
+        clientHandler.setRole(role);
         server.subscribe(clientHandler);
         clientHandler.sendMessage("/regok " + username);
 
