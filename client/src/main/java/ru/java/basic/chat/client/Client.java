@@ -7,30 +7,36 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Client {
-    Socket socket;
-    DataInputStream in;
-    DataOutputStream out;
+    private Socket socket;
+    private DataInputStream in;
+    private DataOutputStream out;
+    private volatile boolean isRunning;
 
     public Client() throws IOException {
         Scanner scanner = new Scanner(System.in);
         socket = new Socket("localhost", 8189);
         in = new DataInputStream(socket.getInputStream());
         out = new DataOutputStream(socket.getOutputStream());
-
+        isRunning = true;
         new Thread(() -> {
             try {
-                while (true) {
+                while (isRunning) {
                     String message = in.readUTF();
                     if (message.startsWith("/")) {
                         if (message.startsWith("/exitok")) {
                             break;
                         }
+                        if (message.startsWith("/kicked")) {
+                            System.out.println("Вас кикнул администратор");
+                            isRunning = false;
+                            break;
+                        }
                         if (message.startsWith("/authok ")) {
-                            System.out.println("Аутентификация прошла успешно с именем пользователя: "+
+                            System.out.println("Аутентификация прошла успешно с именем пользователя: " +
                                     message.split(" ")[1]);
                         }
                         if (message.startsWith("/regok ")) {
-                            System.out.println("регистрация прошла успешно с именем пользователя: "+
+                            System.out.println("Регистрация прошла успешно с именем пользователя: " +
                                     message.split(" ")[1]);
                         }
                     } else {
@@ -44,30 +50,30 @@ public class Client {
             }
         }).start();
 
-        while (true) {
-            String message = scanner.nextLine();
-            out.writeUTF(message);
-            if (message.startsWith("/exit")) {
-                break;
+        while (isRunning) {
+            try {
+                String message = scanner.nextLine();
+                if (isRunning) {
+                    out.writeUTF(message);
+                }
+                if (message.startsWith("/exit")) {
+                    isRunning = false;
+                    break;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                isRunning = false;
             }
         }
     }
 
-    public void disconnect(){
+    public void disconnect() {
         try {
             in.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try {
             out.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try {
             socket.close();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 }
