@@ -14,7 +14,7 @@ public class Server {
     public Server(int port) {
         this.port = port;
         clients = new ArrayList<>();
-        authenticatedProvider = new InMemoryAuthenticationProvider(this);
+        authenticatedProvider = new DatabaseAuthenticationProvider(this);
         authenticatedProvider.initialize();
     }
 
@@ -52,7 +52,6 @@ public class Server {
         for (ClientHandler client : clients) {
             if (client.getUsername().equals(username)){
                 client.sendMessage("/kicked");
-                client.setRunning(false);
                 break;
             }
         }
