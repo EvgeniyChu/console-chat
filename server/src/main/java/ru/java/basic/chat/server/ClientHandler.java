@@ -15,14 +15,6 @@ public class ClientHandler {
     private String username;
     private String role;
 
-    public boolean isRunning() {
-        return isRunning;
-    }
-
-    public void setRunning(boolean running) {
-        isRunning = running;
-    }
-
     private volatile boolean isRunning = true; // Флаг для контроля состояния работы клиента
 
     public String getRole() {
